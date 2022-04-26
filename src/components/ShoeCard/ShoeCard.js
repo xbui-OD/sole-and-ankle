@@ -5,6 +5,11 @@ import { COLORS, WEIGHTS } from '../../constants';
 import { formatPrice, pluralize, isNewShoe } from '../../utils';
 import Spacer from '../Spacer';
 
+const VariantLabelMap = {
+  'on-sale': 'Sale',
+  'new-release': 'Just Released!'
+}
+
 const ShoeCard = ({
   slug,
   name,
@@ -33,9 +38,10 @@ const ShoeCard = ({
 
   return (
     <Link href={`/shoe/${slug}`}>
-      <Wrapper>
+      <Wrapper as={variant === 'on-sale' ? OnSaleWrapper : variant === 'new-release' ? NewReleaseWrapper : Wrapper}>
         <ImageWrapper>
           <Image alt="" src={imageSrc} />
+          <VariantLabel>{VariantLabelMap[variant]}</VariantLabel>
         </ImageWrapper>
         <Spacer size={12} />
         <Row>
@@ -44,6 +50,7 @@ const ShoeCard = ({
         </Row>
         <Row>
           <ColorInfo>{pluralize('Color', numOfColors)}</ColorInfo>
+          <SalePrice>{variant === 'on-sale' ? formatPrice(salePrice) : ''}</SalePrice>
         </Row>
       </Wrapper>
     </Link>
@@ -58,12 +65,39 @@ const Link = styled.a`
 
 const Wrapper = styled.article``;
 
+const OnSaleWrapper = styled(Wrapper)``;
+
+const NewReleaseWrapper = styled(Wrapper)``;
+
 const ImageWrapper = styled.div`
   position: relative;
 `;
 
 const Image = styled.img`
   width: 100%;
+`;
+
+const VariantLabel = styled.div`
+  padding: 8px 10px;
+  position: absolute;
+  top: 12px;
+  right: -4px;
+  border-radius: 2px;
+  color: ${COLORS.white};
+  font-size: 14/16rem;
+  font-weight: ${WEIGHTS.medium};
+
+  ${OnSaleWrapper} & {
+    background-color: ${COLORS.primary};
+  }
+
+  ${NewReleaseWrapper} & {
+    background-color: ${COLORS.secondary};
+  }
+
+  &:empty {
+    display: none;
+  }
 `;
 
 const Row = styled.div`
@@ -77,7 +111,12 @@ const Name = styled.h3`
   color: ${COLORS.gray[900]};
 `;
 
-const Price = styled.span``;
+const Price = styled.span`
+  ${OnSaleWrapper} & {
+    color: ${COLORS.gray[700]};
+    text-decoration: line-through;
+  }
+`;
 
 const ColorInfo = styled.p`
   color: ${COLORS.gray[700]};
